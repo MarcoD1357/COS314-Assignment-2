@@ -20,4 +20,23 @@ public class KnapsackILS {
         }
         return new int[]{totalValue, totalWeight};
     }
+
+    // Generates a feasible initial solution by randomly packing items
+    private static int[] generateInitialSolution(int numItems, int[] values, int[] weights, int capacity, Random random) {
+        int[] solution = new int[numItems];
+        List<Integer> items = new ArrayList<>();
+        for (int i = 0; i < numItems; i++) {
+            items.add(i);
+        }
+        Collections.shuffle(items, random);
+
+        int currentWeight = 0;
+        for (int i : items) {
+            if (currentWeight + weights[i] <= capacity) {
+                solution[i] = 1;
+                currentWeight += weights[i];
+            }
+        }
+        return solution;
+    }
 }
