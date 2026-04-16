@@ -39,4 +39,34 @@ public class KnapsackILS {
         }
         return solution;
     }
+
+    // First-improvement local search (1-flip neighborhood)
+    private static int[] localSearch(int[] solution, int[] values, int[] weights, int capacity) {
+        int numItems = solution.length;
+        int[] bestSolution = solution.clone();
+        int bestValue = calculateFitness(bestSolution, values, weights, capacity)[0];
+
+        boolean improved = true;
+        while (improved) {
+            improved = false;
+            for (int i = 0; i < numItems; i++) {
+                int[] neighbor = bestSolution.clone();
+                // Flip the bit
+                neighbor[i] = 1 - neighbor[i];
+
+                int[] fitness = calculateFitness(neighbor, values, weights, capacity);
+                int neighborVal = fitness[0];
+                int neighborWeight = fitness[1];
+
+                // Accept first improvement
+                if (neighborWeight <= capacity && neighborVal > bestValue) {
+                    bestSolution = neighbor;
+                    bestValue = neighborVal;
+                    improved = true;
+                    break; // Restart search from the new better solution
+                }
+            }
+        }
+        return bestSolution;
+    }
 }
