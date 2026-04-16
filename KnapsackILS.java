@@ -69,4 +69,52 @@ public class KnapsackILS {
         }
         return bestSolution;
     }
+
+    // Perturbs the solution to escape local optima and repairs it if over capacity
+    private static int[] perturb(int[] solution, int[] weights, int[] values, int capacity, double perturbationStrength, Random random) {
+        int numItems = solution.length;
+        int[] perturbed = solution.clone();
+
+        // Calculate how many bits to flip
+        int numFlips = Math.max(1, (int) (numItems * perturbationStrength));
+        
+        // Pick random unique indices to flip
+        List<Integer> allIndices = new ArrayList<>();
+        for (int i = 0; i < numItems; i++) allIndices.add(i);
+        Collections.shuffle(allIndices, random);
+        
+        for (int i = 0; i < numFlips; i++) {
+            int idx = allIndices.get(i);
+            perturbed[idx] = 1 - perturbed[idx];
+        }
+
+        // Repair mechanism if capacity is exceeded
+        int currentWeight = calculateFitness(perturbed, values, weights, capacity)[1];
+        if (currentWeight > capacity) {
+            // Find items currently in the knapsack
+            List<Integer> inKnapsack = new ArrayList<>();
+            for (int i = 0; i < numItems; i++) {
+                if (perturbed[i] == 1) {
+                    inKnapsack.add(i);
+                }
+            }
+
+            // Sort by value/weight ratio (ascending) so we remove the worst items first
+            inKnapsack.sort((a, b) -> {
+                double ratioA = (double) values[a] / weights[a];
+                double ratioB = (double) values[b] / weights[b];
+                return Double.compare(ratioA, ratioB);
+            });
+
+            // Remove items until we fit within the capacity
+            for (int i : inKnapsack) {
+                perturbed[i] = 0;
+                currentWeight -= weights[i];
+                if (currentWeight <= capacity) {
+                    break;
+                }
+            }
+        }
+        return perturbed;
+    }
 }
