@@ -156,4 +156,30 @@ public class KnapsackILS {
         double runtimeSeconds = (System.currentTimeMillis() - startTimeMillis) / 1000.0;
         return new Result(bestValue, runtimeSeconds);
     }
+
+    // Helper class to return multiple values from the ILS method
+    public static class Result {
+        public int bestValue;
+        public double runtime;
+
+        public Result(int bestValue, double runtime) {
+            this.bestValue = bestValue;
+            this.runtime = runtime;
+        }
+    }
+
+    // --- Example Usage ---
+    public static void main(String[] args) {
+        // Replace these arrays and capacity with data parsed from your assignment files
+        int[] exampleValues = {60, 100, 120};
+        int[] exampleWeights = {10, 20, 30};
+        int exampleCapacity = 50;
+        long seed = 42;
+        double maxTimeInSeconds = 2.0;
+
+        Result result = iteratedLocalSearch(exampleValues, exampleWeights, exampleCapacity, seed, maxTimeInSeconds);
+
+        System.out.printf("Algorithm: ILS | Seed: %d | Best Solution (Value): %d | Runtime: %.4f seconds%n", 
+                          seed, result.bestValue, result.runtime);
+    }
 }
