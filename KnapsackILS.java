@@ -117,4 +117,43 @@ public class KnapsackILS {
         }
         return perturbed;
     }
+
+    // Main ILS Algorithm
+    public static Result iteratedLocalSearch(int[] values, int[] weights, int capacity, long seed, double maxTimeSeconds) {
+        Random random = new Random(seed);
+        long startTimeMillis = System.currentTimeMillis();
+        long maxTimeMillis = (long) (maxTimeSeconds * 1000);
+        
+        int numItems = values.length;
+        double perturbationStrength = 0.1; // 10% of items
+
+        // 1. Generate Initial Solution
+        int[] currentSolution = generateInitialSolution(numItems, values, weights, capacity, random);
+        currentSolution = localSearch(currentSolution, values, weights, capacity);
+        
+        int[] bestSolution = currentSolution.clone();
+        int bestValue = calculateFitness(bestSolution, values, weights, capacity)[0];
+
+        // 2. Main ILS Loop
+        while ((System.currentTimeMillis() - startTimeMillis) < maxTimeMillis) {
+            // Perturbation
+            int[] perturbedSolution = perturb(currentSolution, weights, values, capacity, perturbationStrength, random);
+
+            // Local Search on perturbed solution
+            int[] newSolution = localSearch(perturbedSolution, values, weights, capacity);
+            int newValue = calculateFitness(newSolution, values, weights, capacity)[0];
+
+            // Acceptance Criterion (accept if better or equal)
+            if (newValue >= bestValue) {
+                currentSolution = newSolution.clone();
+                if (newValue > bestValue) {
+                    bestSolution = newSolution.clone();
+                    bestValue = newValue;
+                }
+            }
+        }
+
+        double runtimeSeconds = (System.currentTimeMillis() - startTimeMillis) / 1000.0;
+        return new Result(bestValue, runtimeSeconds);
+    }
 }
